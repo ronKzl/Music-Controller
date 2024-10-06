@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 import { render } from "react-dom";
 import HomePage from "./HomePage";
+import "../../static/css/index.css";
 
 const App = () => {
   return (
-    <div>
+    <div className="center">
       <HomePage />
     </div>
   );

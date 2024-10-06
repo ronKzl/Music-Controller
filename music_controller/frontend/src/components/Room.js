@@ -11,6 +11,7 @@ const Room = () => {
 
   useEffect(() => {
     getRoomDetails();
+    console.log("here");
   }, [roomCode]);
 
   function getRoomDetails() {

@@ -10,11 +10,15 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.js$/, // Rule for JS files
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: "babel-loader", //Loader for JS
         },
+      },
+      {
+        test: /\.css$/, // Rule for CSS files
+        use: ["style-loader", "css-loader"], // Loaders for CSS
       },
     ],
   },
