@@ -26,13 +26,12 @@ class GetRoom(APIView):
     def get(self,request,format=None):
         code = request.GET.get(self.lookup_url_kwarg)
         if code != None:
-            room = Room.objects.filter(code=code)
-            #len(room) > 0 improper replaced with 
+            room = Room.objects.filter(code=code) 
             if room.exists():
                 data = RoomSerializer(room[0]).data 
                 data['is_host'] = self.request.session.session_key == room[0].host #check to see if user is the host
                 return Response(data, status=status.HTTP_200_OK)
-            return Response({'Room Not Found':'Invalid Room Code.'},status=status.HTTP_404_NOT_FOUND)
+            return Response({'Room_Not_Found':'Invalid Room Code.'},status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Code paramater not found in request'}, status=status.HTTP_400_BAD_REQUEST)
     
 #how does user join a room -> send room code to make sure its valid
@@ -53,6 +52,22 @@ class JoinRoom(APIView):
                 return Response({'message': 'Room Joined'},status=status.HTTP_200_OK)
             return Response({'Room Not Found':'Invalid Room Code.'},status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Code paramater not found in request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class LeaveRoom(APIView):
+    
+    def post(self,request,format=None):
+        if not self.request.session.exists(self.request.session.session_key): #check that user is hitting endpoint on purpose
+            return Response({'Bad Request': 'You are not in a room make or join one!'}, status=status.HTTP_404_NOT_FOUND)
+        if 'room_code' in self.request.session:
+            self.request.session.pop('room_code')  #remove the room code from the session token of user.
+            host_id = self.request.session.session_key #check if user is the host to determine if to also close room and remove it from DB.
+            room_result = Room.objects.filter(host=host_id)
+            if room_result.exists():
+                room = room_result[0]
+                room.delete() #remove the room from the database
+            return Response({'Message' : 'Success'},status=status.HTTP_200_OK)
+        return Response({'Bad Request' : 'Invalid Room Code Entered'},status=status.HTTP_400_BAD_REQUEST)
+
 
 class CreateRoomView(APIView):
     serializer_class = CreateRoomSerializer
